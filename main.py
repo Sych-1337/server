@@ -4,7 +4,7 @@ import httpx
 
 app = FastAPI()
 
-KEITARO_CAMPAIGN_URL = "https://firtesoneballs.xyz/XD2gBKJv"  
+KEITARO_CAMPAIGN_URL = "https://firstoneballs.xyz/XD2gBKJv"
 
 @app.get("/kb")
 async def get_offer(user_id: str, campaign: str = "kotlinTest"):
