@@ -1,1 +1,4 @@
-KEITARO_URL = "https://firtsoneballs.xyz/XD2gBKJv"  # Подставишь свою ссылку
+CAMPAIGN_STREAMS = {
+    "slot01": "https://firtsoneballs.xyz/click?stream_id=12345",
+    "slot02": "https://firtsoneballs.xyz/click?stream_id=67890"
+}
