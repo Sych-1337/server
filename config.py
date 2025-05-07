@@ -1,1 +1,1 @@
-KEITARO_URL = "https://your-keitaro-domain.com/path"  # Подставишь свою ссылку
+KEITARO_URL = "https://firtsoneballs.xyz/XD2gBKJv"  # Подставишь свою ссылку
