@@ -1,12 +1,27 @@
-from fastapi import FastAPI, Query
-from keitaro import get_offer_url
-from models import ServerResponse
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+import httpx
 
 app = FastAPI()
 
-@app.get("/route-user", response_model=ServerResponse)
-async def route_user(user_id: str = Query(...)):
-    url = await get_offer_url(user_id)
-    if url:
-        return ServerResponse(status="ok", url=url)
-    return ServerResponse(status="game", url=None)
+KEITARO_CAMPAIGN_URL = "https://firtesoneballs.xyz/XD2gBKJv"  
+
+@app.get("/kb")
+async def get_offer(user_id: str, campaign: str = "kotlinTest"):
+    try:
+        async with httpx.AsyncClient() as client:
+            # Добавляем параметры Keitaro (user_id, campaign и т.д.)
+            response = await client.get(
+                KEITARO_CAMPAIGN_URL,
+                params={"sub_id": user_id, "campaign": campaign},
+                follow_redirects=False
+            )
+
+            # Получаем редирект
+            if "location" in response.headers:
+                offer_url = response.headers["location"]
+                return {"status": "ok", "url": offer_url}
+            else:
+                return {"status": "game"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
