@@ -1,18 +1,25 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 import httpx
 
 app = FastAPI()
 
 KEITARO_CAMPAIGN_URL = "https://firtsoneballs.xyz/XD2gBKJv"
 
+MOBILE_USER_AGENT = (
+    "Mozilla/5.0 (Linux; Android 11; Mobile) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) "
+    "Chrome/97.0.0.0 Mobile Safari/537.36"
+)
+
 @app.get("/kb")
-async def get_offer(user_id: str, campaign: str = "slot01"):
+async def get_offer(request: Request, user_id: str, campaign: str = "kotlinTest"):
     try:
+        client_ip = request.headers.get("x-forwarded-for", request.client.host)
+
         headers = {
-            "User-Agent": "Mozilla/5.0 (Linux; Android 11; Pixel 5 Build/RQ3A.210805.001.A1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Mobile Safari/537.36",
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
-            "Accept-Language": "en-US,en;q=0.9",
-            "Referer": "https://www.google.com/",
+            "User-Agent": MOBILE_USER_AGENT,
+            "X-Forwarded-For": client_ip
         }
 
         async with httpx.AsyncClient(follow_redirects=False) as client:
@@ -22,11 +29,10 @@ async def get_offer(user_id: str, campaign: str = "slot01"):
                 headers=headers
             )
 
-        print(">>> RESPONSE HEADERS:", response.headers)
-
         if "location" in response.headers:
             return {"status": "ok", "url": response.headers["location"]}
         else:
             return {"status": "game"}
+
     except Exception as e:
         return {"status": "error", "message": str(e)}
