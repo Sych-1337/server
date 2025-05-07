@@ -1,31 +1,28 @@
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI
 import httpx
-import os
 
 app = FastAPI()
 
-KEITARO_CAMPAIGN_URL = "https://firtsoneballs.xyz/XD2gBKJv"  # Убедись, что домен без ошибок
+KEITARO_CAMPAIGN_URL = "https://firtsoneballs.xyz/XD2gBKJv"  # Убедись, что домен правильный
 
 @app.get("/kb")
-async def get_offer(request: Request, user_id: str, campaign: str = "kotlinTest"):
+async def get_offer(user_id: str, campaign: str = "kotlinTest"):
     try:
-        # Логируем заголовки (для отладки фильтров Keitaro)
-        headers = dict(request.headers)
-        print(">>> User-Agent:", headers.get("user-agent"))
-        print(">>> X-Forwarded-For:", headers.get("x-forwarded-for"))
-        print(">>> IP:", request.client.host)
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 Chrome/112.0.0.0 Mobile Safari/537.36"
+        }
 
         async with httpx.AsyncClient(follow_redirects=False) as client:
             response = await client.get(
                 KEITARO_CAMPAIGN_URL,
-                params={"sub_id": user_id, "campaign": campaign}
+                params={"sub_id": user_id, "campaign": campaign},
+                headers=headers
             )
 
-        # Проверяем наличие редиректа
+        # Если есть редирект — отдаём ссылку
         if "location" in response.headers:
             return {"status": "ok", "url": response.headers["location"]}
         else:
-            return {"status": "game"}  # Показываем игру
+            return {"status": "game"}  # Иначе — игра
     except Exception as e:
         return {"status": "error", "message": str(e)}
