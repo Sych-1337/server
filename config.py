@@ -1,4 +1,8 @@
-CAMPAIGN_STREAMS = {
-    "slot01": "https://firtsoneballs.xyz/click?stream_id=12345",
-    "slot02": "https://firtsoneballs.xyz/click?stream_id=67890"
+APP_CONFIG = {
+    "app1": {
+        "keitaro_url": "https://firtsoneballs.xyz/click?stream_id=12345"
+    },
+    "app2": {
+        "keitaro_url": "https://firtsoneballs.xyz/click?stream_id=67890"
+    }
 }
