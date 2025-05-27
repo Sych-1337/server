@@ -32,11 +32,12 @@ async def get_offer_legacy(request: Request, user_id: str, campaign: str = "kotl
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
+
 @app.get("/{app_name}/kb")
 async def get_offer(app_name: str, request: Request, user_id: str, campaign: str):
-    url = await get_offer_url(user_id, campaign, app_name)
-    if url:
-        return {"status": "ok", "url": url}
+    offer_url = await get_offer_url(user_id, campaign, app_name)
+    if offer_url:
+        return {"status": "ok", "url": offer_url}
     else:
         return {"status": "game"}
 
