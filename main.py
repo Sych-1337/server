@@ -57,57 +57,78 @@ async def get_analytics(app_name: str):
         return {"status": "error", "message": "No data for app"}
     return {"status": "ok", "data": data[app_name]}
 
-@app.get("/analytics/{app_name}/view", response_class=HTMLResponse)
-async def view_analytics(app_name: str):
+@app.get("/analytics/dashboard", response_class=HTMLResponse)
+async def analytics_dashboard():
     data = load_analytics()
-    records = data.get(app_name, [])
-
-    if not records:
-        return f"<h2>No analytics for app: {app_name}</h2>"
-
-    headers = list(records[0].keys())
-
-    html_template = """
-    <html>
-        <head>
-            <title>Analytics for {{ app_name }}</title>
-            <style>
-                table {
-                    width: 100%;
-                    border-collapse: collapse;
-                }
-                th, td {
-                    border: 1px solid #ccc;
-                    padding: 6px 12px;
-                    font-size: 14px;
-                }
-                th {
-                    background: #f5f5f5;
-                }
-                body {
-                    font-family: sans-serif;
-                    padding: 20px;
-                }
-            </style>
-        </head>
-        <body>
-            <h2>Analytics for {{ app_name }}</h2>
-            <table>
-                <tr>
-                    {% for h in headers %}
-                        <th>{{ h }}</th>
-                    {% endfor %}
-                </tr>
-                {% for row in records %}
+    
+    # Собираем уникальные ключи (заголовки таблицы)
+    headers = set()
+    for records in data.values():
+        for rec in records:
+            headers.update(rec.keys())
+    headers = sorted(list(headers))
+    html_template ="""
+<html>
+    <head>
+        <title>📊 Full Analytics Dashboard</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                padding: 20px;
+                background-color: #f7f9fa;
+            }
+            h1 {
+                margin-bottom: 20px;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                table-layout: fixed;
+            }
+            th, td {
+                border: 1px solid #ccc;
+                padding: 8px;
+                text-align: left;
+                font-size: 14px;
+                word-wrap: break-word;
+            }
+            th {
+                background-color: #eaeaea;
+            }
+            tr:nth-child(even) {
+                background-color: #f2f2f2;
+            }
+            .app-name {
+                font-weight: bold;
+                color: #333;
+                background-color: #d6eaff;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>📊 Analytics Overview</h1>
+        <table>
+            <tr>
+                <th>App</th>
+                {% for h in headers %}
+                    <th>{{ h }}</th>
+                {% endfor %}
+            </tr>
+            {% for app, entries in all_data.items() %}
+                {% for entry in entries %}
                     <tr>
+                        <td class="app-name">{{ app }}</td>
                         {% for h in headers %}
-                            <td>{{ row.get(h, "") }}</td>
+                            <td>{{ entry.get(h, "") }}</td>
                         {% endfor %}
                     </tr>
                 {% endfor %}
-            </table>
-        </body>
-    </html>
-    """
-    html = Template(html_template).render(app_name=app_name, records=records, headers=headers)
+            {% endfor %}
+        </table>
+    </body>
+</html>
+"""
+
+
+    html = Template(html_template).render(all_data=data, headers=headers)
     return HTMLResponse(content=html)
