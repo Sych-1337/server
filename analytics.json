@@ -1,1 +1,28 @@
-{}
+{
+  "app1": [
+    {
+      "sub_id": "user123",
+      "keyword": "shoes",
+      "cost": "2.5",
+      "currency": "USD",
+      "external_id": "abc123",
+      "creative_id": "creativeX",
+      "ad_campaign_id": "cmp001",
+      "source": "google",
+      "time": "2025-05-27 12:49:47"
+    }
+  ],
+  "app2": [
+    {
+      "sub_id": "user456",
+      "keyword": "books",
+      "cost": "1.0",
+      "currency": "EUR",
+      "external_id": "def456",
+      "creative_id": "creativeY",
+      "ad_campaign_id": "cmp002",
+      "source": "facebook",
+      "time": "2025-05-27 12:49:47"
+    }
+  ]
+}
