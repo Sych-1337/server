@@ -39,7 +39,7 @@ async def get_offer(
     request: Request,
     user_id: str,
     campaign: str,
-    ua: str = "Mozilla/5.0 (Linux; Android 11; Mobile)"  # значение по умолчанию
+    ua: str = "Mozilla/5.0 (Linux; Android 11; Mobile)"
 ):
     client_ip = request.headers.get("x-forwarded-for", request.client.host)
     headers = {
@@ -47,12 +47,37 @@ async def get_offer(
         "X-Forwarded-For": client_ip
     }
 
-    offer_url = await get_offer_url(user_id, campaign, app_name, headers)
-    if offer_url:
-        return {"status": "ok", "url": offer_url}
-    else:
+    app_conf = APP_CONFIG.get(app_name)
+    if not app_conf:
+        print(f"[ERROR] Unknown app: {app_name}")
         return {"status": "game"}
 
+    keitaro_url = app_conf.get("keitaro_url")
+    if not keitaro_url:
+        print(f"[ERROR] No keitaro_url for: {app_name}")
+        return {"status": "game"}
+
+    try:
+        async with httpx.AsyncClient(follow_redirects=False) as client:
+            response = await client.get(
+                keitaro_url,
+                params={"sub_id": user_id, "campaign": campaign},
+                headers=headers
+            )
+
+        print(f"\n[KEITARO] → GET {keitaro_url}?sub_id={user_id}&campaign={campaign}")
+        print("[STATUS]", response.status_code)
+        print("[HEADERS]", dict(response.headers))
+        print("[BODY]", response.text[:500])
+
+        if "location" in response.headers:
+            return {"status": "ok", "url": response.headers["location"]}
+        else:
+            return {"status": "game"}
+
+    except Exception as e:
+        print("[ERROR] Exception while contacting Keitaro:", e)
+        return {"status": "error", "message": str(e)}
 
 @app.get("/postback")
 async def postback_handler(request: Request):
