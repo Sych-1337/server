@@ -70,14 +70,16 @@ async def get_offer(
         print("[HEADERS]", dict(response.headers))
         print("[BODY]", response.text[:500])
 
-        if "location" in response.headers:
-            return {"status": "ok", "url": response.headers["location"]}
+        offer_url = response.headers.get("location")  # <- безопасный способ
+        if offer_url:
+            return {"status": "ok", "url": offer_url}
         else:
             return {"status": "game"}
 
     except Exception as e:
         print("[ERROR] Exception while contacting Keitaro:", e)
         return {"status": "error", "message": str(e)}
+
 
 @app.get("/postback")
 async def postback_handler(request: Request):
