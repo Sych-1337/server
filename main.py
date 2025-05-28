@@ -34,10 +34,16 @@ async def get_offer_legacy(request: Request, user_id: str, campaign: str = "kotl
 
 
 @app.get("/{app_name}/kb")
-async def get_offer(app_name: str, request: Request, user_id: str, campaign: str):
+async def get_offer(
+    app_name: str,
+    request: Request,
+    user_id: str,
+    campaign: str,
+    ua: str = "Mozilla/5.0 (Linux; Android 11; Mobile)"  # значение по умолчанию
+):
     client_ip = request.headers.get("x-forwarded-for", request.client.host)
     headers = {
-        "User-Agent": "Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.0.0 Mobile Safari/537.36",
+        "User-Agent": ua,
         "X-Forwarded-For": client_ip
     }
 
@@ -46,7 +52,6 @@ async def get_offer(app_name: str, request: Request, user_id: str, campaign: str
         return {"status": "ok", "url": offer_url}
     else:
         return {"status": "game"}
-
 
 
 @app.get("/postback")
