@@ -35,18 +35,18 @@ async def get_offer_legacy(request: Request, user_id: str, campaign: str = "kotl
 
 @app.get("/{app_name}/kb")
 async def get_offer(app_name: str, request: Request, user_id: str, campaign: str):
-
     client_ip = request.headers.get("x-forwarded-for", request.client.host)
     headers = {
         "User-Agent": "Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.0.0 Mobile Safari/537.36",
         "X-Forwarded-For": client_ip
     }
 
-    offer_url = await get_offer_url(user_id, campaign, app_name)
+    offer_url = await get_offer_url(user_id, campaign, app_name, headers)
     if offer_url:
         return {"status": "ok", "url": offer_url}
     else:
         return {"status": "game"}
+
 
 
 @app.get("/postback")
