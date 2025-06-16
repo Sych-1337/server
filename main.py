@@ -39,46 +39,42 @@ async def get_offer(
     request: Request,
     user_id: str,
     campaign: str,
-    ua: str = "Mozilla/5.0 (Linux; Android 11; Mobile)"
+    tracking_id: str = "",
+    sub_id_2: str = "",
+    sub_id_3: str = "",
+    sub_id_4: str = "",
+    sub_id_5: str = "",
+    sub_id_6: str = "",
+    sub_id_7: str = "",
+    sub_id_8: str = "",
 ):
     client_ip = request.headers.get("x-forwarded-for", request.client.host)
     headers = {
-        "User-Agent": ua,
+        "User-Agent": "Mozilla/5.0 (Linux; Android 11; Mobile)",
         "X-Forwarded-For": client_ip
     }
 
-    app_conf = APP_CONFIG.get(app_name)
-    if not app_conf:
-        print(f"[ERROR] Unknown app: {app_name}")
-        return {"status": "game"}
+    from keitaro import get_offer_url
 
-    keitaro_url = app_conf.get("keitaro_url")
-    if not keitaro_url:
-        print(f"[ERROR] No keitaro_url for: {app_name}")
-        return {"status": "game"}
+    url = await get_offer_url(
+        user_id=user_id,
+        campaign=campaign,
+        app_name=app_name,
+        tracking_id=tracking_id,
+        sub_ids={
+            "sub_id_2": sub_id_2,
+            "sub_id_3": sub_id_3,
+            "sub_id_4": sub_id_4,
+            "sub_id_5": sub_id_5,
+            "sub_id_6": sub_id_6,
+            "sub_id_7": sub_id_7,
+            "sub_id_8": sub_id_8
+        }
+    )
 
-    try:
-        async with httpx.AsyncClient(follow_redirects=False) as client:
-            response = await client.get(
-                keitaro_url,
-                params={"sub_id": user_id, "campaign": campaign},
-                headers=headers
-            )
-
-        print(f"\n[KEITARO] → GET {keitaro_url}?sub_id={user_id}&campaign={campaign}")
-        print("[STATUS]", response.status_code)
-        print("[HEADERS]", dict(response.headers))
-        print("[BODY]", response.text[:500])
-
-        offer_url = response.headers.get("location")  # <- безопасный способ
-        if offer_url:
-            return {"status": "ok", "url": offer_url}
-        else:
-            return {"status": "game"}
-
-    except Exception as e:
-        print("[ERROR] Exception while contacting Keitaro:", e)
-        return {"status": "error", "message": str(e)}
+    if url:
+        return {"status": "ok", "url": url}
+    return {"status": "game"}
 
 
 @app.get("/postback")
